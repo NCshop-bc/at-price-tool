@@ -67,6 +67,13 @@
       pointer-events: none;
       z-index: 9998;
     }
+    .product-img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </head>
@@ -125,7 +132,7 @@
     const imgSrc = imageMap[name] || 'default.png';
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td><img src="images/${imgSrc}" alt="${name}" style="height: 40px; vertical-align: middle; margin-right: 8px;">${name}</td>
+      <td><img src="images/${imgSrc}" alt="${name}" class="product-img">${name}</td>
       <td><input type="number" min="0" data-type="portion" data-name="${name}" /></td>
       <td><input type="number" min="0" data-type="quantity" data-name="${name}" onblur="syncToPortion(this)" /></td>
     `;
