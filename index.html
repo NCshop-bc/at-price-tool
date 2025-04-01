@@ -98,17 +98,34 @@
     '戰鬥道具 300個': { unit: 300, price: 10 },
     '喵力達 300個': { unit: 300, price: 10 },
     '貓薄荷 20個': { unit: 20, price: 10 },
-    "獸石結晶 20個": { unit: 20, price: 10 },
+    '獸石結晶 20個': { unit: 20, price: 10 },
     '貓眼石 300個': { unit: 300, price: 10 },
     'XP經驗 2000萬': { unit: 20000000, price: 10 },
     'NP本能 1萬': { unit: 10000, price: 10 }
   };
 
+  const imageMap = {
+    '1億卷 1張': '1億卷.png',
+    '銀卷 300張': '銀卷.png',
+    '金卷 150張': '金卷.png',
+    '白金卷 3張': '白金卷.png',
+    '傳說卷 1張': '傳說卷.png',
+    '首領旗 200個': '首領旗.png',
+    '戰鬥道具 300個': '戰鬥道具.png',
+    '喵力達 300個': '喵力達.png',
+    '貓薄荷 20個': '貓薄荷.png',
+    '獸石結晶 20個': '獸石結晶.png',
+    '貓眼石 300個': '貓眼石.png',
+    'XP經驗 2000萬': 'XP經驗.png',
+    'NP本能 1萬': 'NP本能.png'
+  };
+
   const tbody = document.getElementById('itemTable');
   Object.entries(priceTable).forEach(([name, config], index) => {
+    const imgSrc = imageMap[name] || 'default.png';
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td><img src="images/${name.split(' ')[0]}.png" alt="${name}" style="height: 40px; vertical-align: middle; margin-right: 8px;">${name}</td>
+      <td><img src="images/${imgSrc}" alt="${name}" style="height: 40px; vertical-align: middle; margin-right: 8px;">${name}</td>
       <td><input type="number" min="0" data-type="portion" data-name="${name}" /></td>
       <td><input type="number" min="0" data-type="quantity" data-name="${name}" onblur="syncToPortion(this)" /></td>
     `;
@@ -166,8 +183,7 @@
       if (portion > 0) {
         const itemTotal = portion * config.price;
         total += itemTotal;
-        output += `${name.split(' ')[0]} ${qty}　　${String(itemTotal).padStart(4)} 元
-`;
+        output += `${name.split(' ')[0]} ${qty}　　${String(itemTotal).padStart(4)} 元\n`;
       }
     });
     output += "------------------------------\n";
