@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>NC專賣店 - 貓咪大戰爭 自動報價工具</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background-color: #111;
+      color: #eee;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+      border: 1px solid #444;
+    }
+    input {
+      width: 80px;
+      padding: 5px;
+      background-color: #222;
+      color: #eee;
+      border: 1px solid #555;
+      text-align: center;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #333;
+      color: #fff;
+      border: 1px solid #555;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #444;
+    }
+    pre {
+      background: #222;
+      padding: 15px;
+      border-radius: 5px;
+      color: #0f0;
+      white-space: pre-wrap;
+    }
+    #copyToast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #0f0;
+      color: #000;
+      padding: 10px 20px;
+      border-radius: 5px;
+      display: none;
+      z-index: 9999;
+      font-weight: bold;
+    }
+    .confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9998;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+  <h1>NC專賣店 - 貓咪大戰爭 自動報價工具</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>商品</th>
+        <th>份數</th>
+        <th>張數 / 顆數 / 個數</th>
+      </tr>
+    </thead>
+    <tbody id="itemTable"></tbody>
+  </table>
+  <button onclick="calculateTotal()">計算總金額</button>
+  <h2>報價結果：</h2>
+  <pre id="output"></pre>
+  <div id="copyToast">✅ 已複製報價到剪貼簿</div>
+
+<script>
+  const priceTable = {
+    '1億卷 1張': { unit: 1, price: 1 },
+    '銀卷 300張': { unit: 300, price: 10 },
+    '金卷 150張': { unit: 150, price: 10 },
+    '白金卷 3張': { unit: 3, price: 10 },
+    '傳說卷 1張': { unit: 1, price: 10 },
+    '首領旗 200個': { unit: 200, price: 10, roundUp: true },
+    '戰鬥道具 300個': { unit: 300, price: 10 },
+    '喵力達 300個': { unit: 300, price: 10 },
+    '貓薄荷 20個': { unit: 20, price: 10 },
+    "獸石結晶 20個": { unit: 20, price: 10 },
+    '貓眼石 300個': { unit: 300, price: 10 },
+    'XP經驗 2000萬': { unit: 20000000, price: 10 },
+    'NP本能 1萬': { unit: 10000, price: 10 }
+  };
+
+  const tbody = document.getElementById('itemTable');
+  Object.entries(priceTable).forEach(([name, config], index) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${name}</td>
+      <td><input type="number" min="0" data-type="portion" data-name="${name}" /></td>
+      <td><input type="number" min="0" data-type="quantity" data-name="${name}" onblur="syncToPortion(this)" /></td>
+    `;
+    tbody.appendChild(row);
+  });
+
+  tbody.addEventListener('input', (e) => {
+    const target = e.target;
+    const name = target.dataset.name;
+    const config = priceTable[name];
+    const row = target.closest('tr');
+    const portionInput = row.querySelector('[data-type="portion"]');
+    const quantityInput = row.querySelector('[data-type="quantity"]');
+
+    if (target.dataset.type === 'portion') {
+      const portion = parseInt(portionInput.value) || 0;
+      quantityInput.value = portion * config.unit;
+    }
+  });
+
+  function syncToPortion(inputEl) {
+    const row = inputEl.closest('tr');
+    const name = inputEl.dataset.name;
+    const config = priceTable[name];
+    const qty = parseInt(inputEl.value) || 0;
+    const portion = Math.ceil(qty / config.unit);
+    row.querySelector('[data-type="portion"]').value = portion;
+    inputEl.value = portion * config.unit;
+  }
+
+  function showToast(message) {
+    const toast = document.getElementById("copyToast");
+    toast.textContent = message;
+    toast.style.display = "block";
+    setTimeout(() => toast.style.display = "none", 2000);
+  }
+
+  function launchConfetti() {
+    confetti({
+      particleCount: 100,
+      spread: 80,
+      origin: { y: 0.6 }
+    });
+  }
+
+  function calculateTotal() {
+    let total = 0;
+    let output = '';
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach(row => {
+      const name = row.children[0].textContent;
+      const portion = parseInt(row.children[1].children[0].value) || 0;
+      const qty = parseInt(row.children[2].children[0].value) || 0;
+      const config = priceTable[name];
+      if (portion > 0) {
+        const itemTotal = portion * config.price;
+        total += itemTotal;
+        output += `${name.split(' ')[0]} ${qty}　　${String(itemTotal).padStart(4)} 元
+`;
+      }
+    });
+    output += "------------------------------\n";
+    output += `總共　　　　　👉 ${total} 元 👈`;
+    const outputBox = document.getElementById("output");
+    outputBox.innerText = output;
+    navigator.clipboard.writeText(output).then(() => {
+      showToast("✅ 已複製報價到剪貼簿");
+      launchConfetti();
+    });
+  }
+</script>
+</body>
+</html>
