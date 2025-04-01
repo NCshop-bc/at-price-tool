@@ -108,7 +108,7 @@
   Object.entries(priceTable).forEach(([name, config], index) => {
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td>${name}</td>
+      <td><img src="images/${name.split(' ')[0]}.png" alt="${name}" style="height: 40px; vertical-align: middle; margin-right: 8px;">${name}</td>
       <td><input type="number" min="0" data-type="portion" data-name="${name}" /></td>
       <td><input type="number" min="0" data-type="quantity" data-name="${name}" onblur="syncToPortion(this)" /></td>
     `;
